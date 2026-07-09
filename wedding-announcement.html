@@ -47,14 +47,7 @@
   .experience {
     position: fixed;
     inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding:
-      calc(env(safe-area-inset-top) + 24px)
-      calc(env(safe-area-inset-right) + 22px)
-      calc(env(safe-area-inset-bottom) + 24px)
-      calc(env(safe-area-inset-left) + 22px);
+    padding: 0;
   }
 
   /* ===== Background layers ===== */
@@ -121,30 +114,41 @@
 
   /* ===== Stage system ===== */
   .stages {
-    position: relative;
+    position: absolute;
+    inset: 0;
     z-index: 5;
-    width: 100%;
-    max-width: 560px;
     text-align: center;
   }
   .stage {
     position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 100%;
-    transform: translate(-50%, -50%);
+    inset: 0;
+    display: flex;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding:
+      calc(env(safe-area-inset-top) + clamp(28px, 6vh, 60px))
+      calc(env(safe-area-inset-right) + clamp(22px, 6vw, 44px))
+      calc(env(safe-area-inset-bottom) + clamp(28px, 6vh, 60px))
+      calc(env(safe-area-inset-left) + clamp(22px, 6vw, 44px));
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
     transition: opacity 0.9s var(--ease-soft), visibility 0.9s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
   }
   .stage.active {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
+  }
+  /* single content wrapper of each stage — centered, and free to scroll if tall */
+  .intro-content,
+  .teaser-content,
+  .date-content,
+  .names-content {
+    margin: auto;
+    width: 100%;
+    max-width: 560px;
   }
 
   /* staggered inner rise */
@@ -233,7 +237,7 @@
   #intro h1 {
     font-family: var(--serif);
     font-weight: 300;
-    font-size: clamp(2.9rem, 13vw, 4.6rem);
+    font-size: min(4.6rem, 12.5vw);
     line-height: 1.08;
     letter-spacing: 0.015em;
     color: var(--cream);
@@ -271,7 +275,7 @@
     font-family: var(--serif);
     font-style: italic;
     font-weight: 300;
-    font-size: clamp(1.9rem, 8.4vw, 3rem);
+    font-size: min(3rem, 8.6vw);
     line-height: 1.28;
     letter-spacing: 0.01em;
     color: var(--cream);
@@ -295,7 +299,7 @@
   #date .big-date {
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(2.4rem, 11vw, 3.7rem);
+    font-size: min(3.7rem, 11vw);
     line-height: 1.1;
     letter-spacing: 0.06em;
     color: var(--cream);
@@ -364,17 +368,18 @@
   .names-block .name {
     font-family: var(--serif);
     font-weight: 500;
-    font-size: clamp(3rem, 15vw, 5rem);
-    line-height: 1.0;
-    letter-spacing: 0.01em;
+    font-size: min(4.4rem, 11.4vw);
+    line-height: 1.02;
+    letter-spacing: 0.005em;
     color: var(--charcoal);
     white-space: nowrap;
+    max-width: 100%;
   }
   .names-block .amp {
     font-family: var(--serif);
     font-style: italic;
     font-weight: 400;
-    font-size: clamp(1.7rem, 7vw, 2.3rem);
+    font-size: min(2.2rem, 6.5vw);
     color: var(--gold-deep);
     line-height: 1;
     margin: 4px 0;
@@ -506,8 +511,12 @@
     100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.05) rotate(90deg); }
   }
 
-  @media (max-width: 360px) {
-    .names-block .name { font-size: clamp(2.5rem, 13vw, 3.4rem); }
+  /* Short screens: tighten vertical rhythm so everything fits without scrolling */
+  @media (max-height: 700px) {
+    .intro-content, .teaser-content, .date-content { gap: 20px; }
+    .names-content { gap: 16px; }
+    .names-content .rise.d4 { margin-top: -2px; }
+    .replay { margin-top: 18px; }
   }
 
   /* ===== Reduced motion ===== */

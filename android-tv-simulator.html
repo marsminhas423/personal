@@ -250,6 +250,19 @@
   }
   .rassist .mic{width:10px;height:10px;border-radius:50%;
     background:conic-gradient(#4285F4,#EA4335,#FBBC05,#34A853,#4285F4)}
+  /* branded hardware app hotkeys on the remote */
+  .rapps-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#5b626e;font-weight:700;margin-top:-4px}
+  .rapps{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+  .rapps.one{grid-template-columns:1fr}
+  .rapp{
+    appearance:none;border:none;cursor:pointer;color:#fff;font-weight:800;
+    font-size:10px;letter-spacing:.01em;line-height:1.1;padding:9px 6px;border-radius:9px;
+    box-shadow:inset 0 -2px 0 rgba(0,0,0,.28), 0 3px 8px -3px rgba(0,0,0,.7);
+    transition:transform .1s ease, filter .1s ease;text-align:center;
+  }
+  .rapp:hover{filter:brightness(1.12)}
+  .rapp:active,.rapp.press{transform:scale(.94);filter:brightness(1.25)}
+
   .keyhint{color:#5b626e;font-size:10px;text-align:center;line-height:1.5;max-width:150px}
 
   /* ---------- responsive ---------- */
@@ -335,7 +348,11 @@
       </div>
 
       <div class="rassist"><span class="mic"></span> Assistant</div>
-      <div class="keyhint">Use arrow keys + Enter · Backspace = Back · H = Home</div>
+
+      <div class="rapps-label" id="rappsLabel">Netflix · quick launch</div>
+      <div class="rapps" id="rapps"></div>
+
+      <div class="keyhint">Use arrow keys + Enter · Backspace = Back · H = Home<br>Tap an app button to launch it</div>
     </div>
   </div>
 
@@ -348,6 +365,7 @@ const BRANDS = {
     name:"Samsung", logo:"SAMSUNG", os:"Tizen",
     accent:"#1428A0", accent2:"#5e7bff", bezel:"#0b0d12", bezelEdge:"#20232b", logoColor:"#ffffff",
     boot:"SAMSUNG", bootSub:"Smart TV powered by Tizen", layout:"content",
+    remoteApps:["Netflix","Prime Video","Disney+","Samsung TV+"],
     hero:{kicker:"Samsung TV Plus", title:"Galaxy of Stories", desc:"Free live channels and on‑demand hits, built right into your Samsung Smart TV.",
       tags:["Live","4K HDR","Free"], grad:"linear-gradient(120deg,#1428A0,#0a1230)"}
   },
@@ -355,6 +373,7 @@ const BRANDS = {
     name:"LG", logo:"LG", os:"webOS",
     accent:"#A50034", accent2:"#ff5a8a", bezel:"#0a0a0c", bezelEdge:"#1d1a20", logoColor:"#ffffff",
     boot:"LG", bootSub:"Life's Good · webOS", layout:"content",
+    remoteApps:["Netflix","Prime Video","Disney+","LG Channels"],
     hero:{kicker:"LG Channels", title:"OLED evo Showcase", desc:"Perfect black, infinite contrast. Explore demo reels tuned for your OLED panel.",
       tags:["Dolby Vision","OLED","120Hz"], grad:"linear-gradient(120deg,#A50034,#2a0713)"}
   },
@@ -362,6 +381,7 @@ const BRANDS = {
     name:"Sony", logo:"SONY", os:"Google TV",
     accent:"#0a84ff", accent2:"#6cc6ff", bezel:"#08090b", bezelEdge:"#191b1f", logoColor:"#ffffff",
     boot:"SONY", bootSub:"BRAVIA · Powered by Google TV", layout:"content",
+    remoteApps:["Netflix","YouTube","Prime Video","Disney+"],
     hero:{kicker:"BRAVIA CORE", title:"Cinema, Mastered", desc:"Studio‑grade picture with IMAX Enhanced titles streamed at pristine bitrates.",
       tags:["IMAX Enhanced","4K","XR"], grad:"linear-gradient(120deg,#0a2a6b,#050912)"}
   },
@@ -369,6 +389,7 @@ const BRANDS = {
     name:"TCL", logo:"TCL", os:"Google TV",
     accent:"#00b3b3", accent2:"#3ce6d6", bezel:"#0a0c0d", bezelEdge:"#1a2022", logoColor:"#ffffff",
     boot:"TCL", bootSub:"Powered by Google TV", layout:"content",
+    remoteApps:["Netflix","YouTube","Prime Video","Disney+"],
     hero:{kicker:"For You", title:"QLED Mini‑LED", desc:"Thousands of dimming zones deliver bold color and deep contrast on your TCL.",
       tags:["QLED","Mini‑LED","Dolby Atmos"], grad:"linear-gradient(120deg,#004d4d,#04191a)"}
   },
@@ -376,6 +397,7 @@ const BRANDS = {
     name:"Hisense", logo:"Hisense", os:"Google TV",
     accent:"#ff6a00", accent2:"#ffb066", bezel:"#0a0a0a", bezelEdge:"#201a16", logoColor:"#ffffff",
     boot:"Hisense", bootSub:"VIDAA · Powered by Google TV", layout:"classic",
+    remoteApps:["Netflix","YouTube","Prime Video","Disney+"],
     hero:{kicker:"Recommended", title:"ULED Brilliance", desc:"Peak brightness and vivid color engineered for bright rooms and big moments.",
       tags:["ULED","144Hz","Game Mode"], grad:"linear-gradient(120deg,#8a3a00,#1f0e04)"}
   },
@@ -383,6 +405,7 @@ const BRANDS = {
     name:"Xiaomi", logo:"Xiaomi", os:"Android TV",
     accent:"#ff6900", accent2:"#ffa24d", bezel:"#090909", bezelEdge:"#1c1712", logoColor:"#ff6900",
     boot:"Xiaomi", bootSub:"Mi TV · Android TV", layout:"classic",
+    remoteApps:["Netflix","Prime Video","YouTube"],
     hero:{kicker:"PatchWall", title:"Everything, One Place", desc:"PatchWall curates movies and shows across your apps on your Mi TV.",
       tags:["Android TV","Chromecast","Dolby"], grad:"linear-gradient(120deg,#b34a00,#241005)"}
   },
@@ -390,6 +413,7 @@ const BRANDS = {
     name:"Shield", logo:"SHIELD", os:"Android TV",
     accent:"#76b900", accent2:"#a6e34a", bezel:"#060706", bezelEdge:"#141a10", logoColor:"#76b900",
     boot:"NVIDIA SHIELD", bootSub:"Android TV", layout:"classic",
+    remoteApps:["Netflix","Prime Video"],
     hero:{kicker:"GeForce NOW", title:"Play Anything", desc:"Cloud gaming and AI‑upscaled 4K streaming on the ultimate Android TV device.",
       tags:["4K AI","GeForce NOW","Dolby Vision"], grad:"linear-gradient(120deg,#3a5c00,#0c1305)"}
   },
@@ -397,6 +421,7 @@ const BRANDS = {
     name:"Google TV", logo:"Google TV", os:"Google TV",
     accent:"#4285F4", accent2:"#8ab4f8", bezel:"#0a0a0b", bezelEdge:"#1b1c1f", logoColor:"#ffffff",
     boot:"Google TV", bootSub:"A Google experience", layout:"content",
+    remoteApps:["YouTube","Netflix"],
     hero:{kicker:"Top pick for you", title:"All your streaming, together", desc:"Recommendations from across your apps, organized in one place.",
       tags:["Google TV","Cast","Watchlist"], grad:"linear-gradient(120deg,#1a3a7a,#0a0f1c)"}
   }
@@ -415,6 +440,12 @@ const APPS = [
   {n:"Plex", c:"#E5A00D"},
   {n:"Play Store", c:"#0F9D58"}
 ];
+/* Brand colors for the remote's hardware app hotkeys (incl. channel apps) */
+const APP_COLORS = {
+  "Netflix":"#E50914","Prime Video":"#00A8E1","Disney+":"#113CCF","YouTube":"#FF0000",
+  "Max":"#0046FF","Apple TV":"#111111","Spotify":"#1DB954","Twitch":"#9146FF",
+  "Samsung TV+":"#1428A0","LG Channels":"#A50034"
+};
 const MEDIA = [
   {t:"Nebula Rising", g:"linear-gradient(160deg,#6a11cb,#2575fc)"},
   {t:"The Deep North", g:"linear-gradient(160deg,#0f2027,#2c5364)"},
@@ -454,10 +485,31 @@ function selectBrand(key){
   currentBrand = key;
   document.querySelectorAll(".brand-btn").forEach(x=>x.classList.toggle("active",x.dataset.brand===key));
   applyTheme(key);
+  renderRemote();
   // If TV is on, reboot into the new brand so the switch feels real
   if(power==="off"){ /* just update badges below */ }
   else { powerOn(true); }
   refreshBadges();
+}
+
+/* Build this brand's hardware app hotkeys onto the remote */
+function renderRemote(){
+  const b = BRANDS[currentBrand];
+  const apps = b.remoteApps || [];
+  const wrap = el("rapps");
+  wrap.classList.toggle("one", apps.length===1);
+  wrap.innerHTML = "";
+  apps.forEach(name=>{
+    const c = APP_COLORS[name] || b.accent;
+    const btn = document.createElement("button");
+    btn.className = "rapp";
+    btn.textContent = name;
+    btn.style.background = `linear-gradient(160deg, ${c}, ${shade(c,-34)})`;
+    btn.title = `Open ${name}`;
+    btn.onclick = ()=>{ flash(btn); openAppByName(name); };
+    wrap.appendChild(btn);
+  });
+  el("rappsLabel").textContent = `${b.name} · quick launch`;
 }
 
 function applyTheme(key){
@@ -498,7 +550,12 @@ function powerOn(reboot){
   const clone = boot.cloneNode(true);
   boot.replaceWith(clone);
   showLayer("bootLayer");
-  setTimeout(()=>{ if(power==="booting"){ power="home"; renderHome(); showLayer("homeLayer"); } }, 2300);
+  setTimeout(()=>{
+    if(power==="booting"){
+      power="home"; renderHome(); showLayer("homeLayer");
+      if(pendingApp){ const a=pendingApp; pendingApp=null; openAppByName(a); }
+    }
+  }, 2300);
 }
 function powerOff(){
   power="off";
@@ -610,7 +667,19 @@ function openApp(cell){
   const label = cell.classList.contains("app")
     ? cell.textContent.trim()
     : cell.querySelector(".cap").textContent.trim();
+  openAppByName(label);
+}
+
+let pendingApp = null;
+function openAppByName(label){
+  // Real TV behaviour: a remote app button powers the set on first, then opens
+  if(power==="off"){ pendingApp = label; powerOn(); return; }
+  if(power==="booting"){ pendingApp = label; return; }
+  const color = APP_COLORS[label] || BRANDS[currentBrand].accent;
   el("appOpenLogo").textContent = label;
+  el("appOpenLogo").style.color = "#fff";
+  el("appLayer").style.background =
+    `radial-gradient(120% 90% at 50% 30%, ${color} -30%, #000 65%)`;
   power="app";
   showLayer("appLayer");
 }
@@ -670,6 +739,7 @@ function shade(hex, pct){
 /* init */
 applyTheme(currentBrand);
 refreshBadges();
+renderRemote();
 </script>
 </body>
 </html>

@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Android TV Simulator</title>
+<style>
+  :root{
+    --accent:#00c6ff;
+    --accent-2:#0072ff;
+    --bezel:#0a0a0b;
+    --bezel-edge:#1c1c1e;
+    --logo:#ffffff;
+    --panel:#101418;
+    --panel-2:#181d24;
+    --text:#f4f6fa;
+    --muted:#9aa4b2;
+    --focus-ring: 0 0 0 3px rgba(255,255,255,.9), 0 0 26px 6px var(--accent);
+    --radius:14px;
+    font-synthesis:none;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 700px at 50% -10%, #1a1d24 0%, #0b0c10 55%, #060709 100%);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-height:100%;
+    overflow-x:hidden;
+  }
+
+  /* ---------- Top toolbar ---------- */
+  .toolbar{
+    width:100%;
+    max-width:1180px;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:14px;
+    padding:18px 20px 8px;
+  }
+  .toolbar h1{
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    margin:0;
+    color:var(--muted);
+    display:flex;align-items:center;gap:9px;
+  }
+  .toolbar h1 .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+  .spacer{flex:1}
+  .brand-picker{display:flex;flex-wrap:wrap;gap:8px}
+  .brand-btn{
+    appearance:none;border:1px solid #2a2f38;background:#12161c;color:var(--muted);
+    padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;
+    letter-spacing:.03em;transition:.18s ease;
+  }
+  .brand-btn:hover{color:#fff;border-color:#3a4150}
+  .brand-btn.active{
+    color:#fff;border-color:transparent;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    box-shadow:0 6px 18px -6px var(--accent);
+  }
+
+  /* ---------- Stage: TV + remote ---------- */
+  .stage{
+    width:100%;max-width:1180px;
+    display:flex;gap:26px;align-items:flex-start;justify-content:center;
+    padding:8px 20px 60px;
+  }
+
+  /* ---------- TV chassis ---------- */
+  .tv-wrap{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center}
+  .tv{
+    width:100%;
+    background:linear-gradient(180deg,var(--bezel-edge),var(--bezel));
+    border-radius:20px;
+    padding:16px;
+    box-shadow:
+      0 40px 80px -30px rgba(0,0,0,.9),
+      inset 0 1px 0 rgba(255,255,255,.06);
+    position:relative;
+  }
+  .screen{
+    position:relative;
+    width:100%;
+    aspect-ratio:16/9;
+    border-radius:10px;
+    overflow:hidden;
+    background:#000;
+    box-shadow:inset 0 0 0 2px #000, inset 0 0 60px rgba(0,0,0,.6);
+  }
+  .brand-logo-badge{
+    position:absolute;left:50%;bottom:6px;transform:translateX(-50%);
+    font-size:12px;font-weight:800;letter-spacing:.28em;color:var(--logo);
+    opacity:.5;z-index:5;pointer-events:none;
+  }
+  .stand{width:34%;height:16px;margin-top:0;background:linear-gradient(180deg,var(--bezel-edge),#050506);
+    border-radius:0 0 8px 8px}
+  .stand-neck{width:8%;height:26px;background:linear-gradient(180deg,#141414,#0a0a0a)}
+
+  /* ---------- Screen states ---------- */
+  .layer{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+  .hidden{display:none !important}
+
+  /* Off state */
+  #offLayer{background:#000;flex-direction:column;gap:14px;cursor:pointer}
+  #offLayer .off-hint{color:#454b55;font-size:13px;letter-spacing:.15em;text-transform:uppercase}
+  #offLayer .power-glyph{
+    width:56px;height:56px;border-radius:50%;border:2px solid #2c313a;
+    display:flex;align-items:center;justify-content:center;color:#3a404a;font-size:26px;
+    transition:.2s;
+  }
+  #offLayer:hover .power-glyph{border-color:var(--accent);color:var(--accent);box-shadow:0 0 24px -4px var(--accent)}
+
+  /* Boot state */
+  #bootLayer{background:#000;flex-direction:column;gap:26px}
+  .boot-logo{
+    font-weight:800;letter-spacing:.3em;color:var(--logo);
+    font-size:clamp(22px,4.4vw,44px);
+    opacity:0;transform:scale(.94);
+    animation:bootlogo 2.1s ease forwards;
+  }
+  .boot-sub{color:var(--muted);font-size:12px;letter-spacing:.22em;opacity:0;animation:fadein .8s ease .5s forwards}
+  .boot-bar{
+    width:150px;height:3px;border-radius:2px;background:#20242c;overflow:hidden;opacity:0;
+    animation:fadein .6s ease .4s forwards;
+  }
+  .boot-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    animation:load 2s ease .3s forwards}
+  @keyframes bootlogo{0%{opacity:0;transform:scale(.9)}40%{opacity:1;transform:scale(1)}100%{opacity:1;transform:scale(1)}}
+  @keyframes fadein{to{opacity:1}}
+  @keyframes load{to{width:100%}}
+
+  /* ---------- Home launcher ---------- */
+  #homeLayer{background:linear-gradient(160deg,var(--panel),#05070a);flex-direction:column;align-items:stretch;justify-content:flex-start}
+  .home{position:absolute;inset:0;display:flex;flex-direction:column;color:var(--text);
+    padding:3.2% 4% 3%;opacity:0;animation:fadein .5s ease .05s forwards}
+
+  .status-bar{display:flex;align-items:center;gap:12px;font-size:1.35vw}
+  .status-bar .greet{font-weight:600}
+  .status-bar .st-right{margin-left:auto;display:flex;align-items:center;gap:10px;color:var(--muted)}
+  .os-badge{
+    font-size:1vw;font-weight:700;letter-spacing:.08em;padding:.35em .7em;border-radius:6px;
+    background:rgba(255,255,255,.08);color:#fff;
+  }
+
+  /* Hero (Google-TV style) */
+  .hero{
+    position:relative;margin-top:2.4%;flex:0 0 auto;height:36%;min-height:130px;border-radius:12px;overflow:hidden;
+    display:flex;align-items:flex-end;padding:2.4%;
+    background-size:cover;background-position:center;
+  }
+  .row{flex:0 0 auto}
+  .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.82) 0%,rgba(0,0,0,.35) 45%,transparent 75%)}
+  .hero .hero-inner{position:relative;z-index:2;max-width:60%}
+  .hero .kicker{font-size:1vw;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  .hero h2{margin:.3em 0 .35em;font-size:2.9vw;line-height:1;font-weight:800}
+  .hero p{margin:0;color:#d7dce3;font-size:1.15vw;max-width:80%}
+  .hero .tags{margin-top:1.4%;display:flex;gap:8px;font-size:.95vw;color:#c3cad4}
+  .hero .tags span{background:rgba(255,255,255,.12);padding:.28em .7em;border-radius:5px}
+
+  .row{margin-top:2.4%}
+  .row h3{margin:0 0 1%;font-size:1.35vw;font-weight:700;color:#e7ebf1}
+  .tiles{display:flex;gap:1.4%;overflow:hidden}
+  .tile{
+    flex:0 0 auto;border-radius:10px;cursor:pointer;position:relative;
+    background:var(--panel-2);border:1px solid rgba(255,255,255,.05);
+    transition:transform .16s ease, box-shadow .16s ease;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+  }
+  .tile.app{width:15.2%;aspect-ratio:16/10;font-weight:800;font-size:1.25vw;letter-spacing:.02em}
+  .tile.media{width:15.2%;aspect-ratio:2/3;align-items:flex-end}
+  .tile.media .cap{width:100%;padding:6% 7%;font-size:1vw;font-weight:600;
+    background:linear-gradient(0deg,rgba(0,0,0,.85),transparent)}
+  .tile .glyph{font-size:2.2vw}
+  .tile[data-focus="true"]{
+    transform:scale(1.075);
+    box-shadow:var(--focus-ring);
+    z-index:3;border-color:transparent;
+  }
+
+  /* app tile brand-ish coloring via data-c */
+  .tile.app{color:#fff}
+
+  /* ---------- App opened overlay ---------- */
+  #appLayer{background:#000;flex-direction:column;gap:18px;color:#fff}
+  #appLayer .app-open-logo{font-size:3vw;font-weight:800;letter-spacing:.02em}
+  #appLayer .spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.2);
+    border-top-color:var(--accent);animation:spin 1s linear infinite}
+  #appLayer .hint{color:var(--muted);font-size:1vw;letter-spacing:.05em}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ---------- Remote ---------- */
+  .remote{
+    flex:0 0 172px;width:172px;
+    background:linear-gradient(180deg,#22262d,#14171c);
+    border-radius:36px;padding:22px 18px 26px;
+    box-shadow:0 30px 60px -24px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.06);
+    display:flex;flex-direction:column;align-items:center;gap:16px;
+    user-select:none;
+  }
+  .remote .rbrand{font-size:10px;letter-spacing:.24em;color:#6a7180;font-weight:700}
+  .rtop{display:flex;justify-content:space-between;width:100%}
+  .rbtn{
+    width:38px;height:38px;border-radius:50%;border:none;cursor:pointer;
+    background:#2b3039;color:#cfd5de;font-size:15px;display:flex;align-items:center;justify-content:center;
+    transition:.12s;
+  }
+  .rbtn:hover{background:#353b45}
+  .rbtn:active,.rbtn.press{background:var(--accent);color:#04121c;box-shadow:0 0 16px -2px var(--accent)}
+  .rbtn.power{background:#3a1113;color:#ff6b6b}
+  .rbtn.power:hover{background:#4a1518}
+
+  .dpad{
+    position:relative;width:132px;height:132px;border-radius:50%;
+    background:radial-gradient(circle at 50% 45%,#2a2f38,#1a1e24);
+    box-shadow:inset 0 2px 6px rgba(0,0,0,.6);
+  }
+  .dpad .ok{
+    position:absolute;inset:34px;border-radius:50%;background:#31373f;color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;
+    letter-spacing:.06em;cursor:pointer;border:none;transition:.12s;
+  }
+  .dpad .ok:hover{background:#3b424b}
+  .dpad .ok.press{background:var(--accent);color:#04121c}
+  .dpad .arrow{
+    position:absolute;background:transparent;border:none;color:#aeb6c2;cursor:pointer;
+    width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:16px;
+    border-radius:12px;transition:.12s;
+  }
+  .dpad .arrow:hover{color:#fff}
+  .dpad .arrow.press{color:var(--accent)}
+  .dpad .up{top:0;left:50%;transform:translateX(-50%)}
+  .dpad .down{bottom:0;left:50%;transform:translateX(-50%)}
+  .dpad .left{left:0;top:50%;transform:translateY(-50%)}
+  .dpad .right{right:0;top:50%;transform:translateY(-50%)}
+
+  .rrow{display:flex;gap:14px}
+  .rassist{
+    width:100%;height:34px;border-radius:999px;border:1px solid #363c46;background:#1b1f26;color:#8b93a1;
+    font-size:11px;letter-spacing:.05em;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;
+  }
+  .rassist .mic{width:10px;height:10px;border-radius:50%;
+    background:conic-gradient(#4285F4,#EA4335,#FBBC05,#34A853,#4285F4)}
+  .keyhint{color:#5b626e;font-size:10px;text-align:center;line-height:1.5;max-width:150px}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:820px){
+    .stage{flex-direction:column;align-items:center}
+    .remote{flex-direction:row;flex-wrap:wrap;justify-content:center;width:100%;flex:none;
+      border-radius:22px;gap:14px}
+    .dpad{order:-1}
+    .keyhint{display:none}
+    .status-bar,.os-badge{font-size:2.4vw}
+    .hero h2{font-size:5vw}.hero p{font-size:2.2vw}.hero .kicker{font-size:1.9vw}.hero .tags{font-size:1.9vw}
+    .row h3{font-size:2.6vw}.tile.app{font-size:2.4vw}.tile.media .cap{font-size:2vw}
+  }
+  @media (max-width:520px){
+    .brand-btn{padding:6px 11px;font-size:12px}
+  }
+</style>
+</head>
+<body>
+  <div class="toolbar">
+    <h1><span class="dot"></span>Android TV Simulator</h1>
+    <div class="spacer"></div>
+    <div class="brand-picker" id="brandPicker"></div>
+  </div>
+
+  <div class="stage">
+    <div class="tv-wrap">
+      <div class="tv">
+        <div class="screen" id="screen">
+          <!-- OFF -->
+          <div class="layer" id="offLayer">
+            <div class="power-glyph">⏻</div>
+            <div class="off-hint">Press power to turn on</div>
+          </div>
+
+          <!-- BOOT -->
+          <div class="layer hidden" id="bootLayer">
+            <div class="boot-logo" id="bootLogo">SAMSUNG</div>
+            <div class="boot-bar"><i></i></div>
+            <div class="boot-sub" id="bootSub">Powered by Android TV</div>
+          </div>
+
+          <!-- HOME -->
+          <div class="layer hidden" id="homeLayer">
+            <div class="home" id="home"></div>
+          </div>
+
+          <!-- APP -->
+          <div class="layer hidden" id="appLayer">
+            <div class="app-open-logo" id="appOpenLogo">App</div>
+            <div class="spin"></div>
+            <div class="hint">Press <b>BACK</b> to return home</div>
+          </div>
+
+          <div class="brand-logo-badge" id="screenBrand">SAMSUNG</div>
+        </div>
+      </div>
+      <div class="stand-neck"></div>
+      <div class="stand"></div>
+    </div>
+
+    <!-- REMOTE -->
+    <div class="remote">
+      <div class="rbrand" id="remoteBrand">SAMSUNG</div>
+      <div class="rtop">
+        <button class="rbtn power" id="btnPower" title="Power">⏻</button>
+        <button class="rbtn" data-key="Backspace" title="Back">↩</button>
+        <button class="rbtn" data-key="h" title="Home">⌂</button>
+      </div>
+
+      <div class="dpad">
+        <button class="arrow up"    data-key="ArrowUp">▲</button>
+        <button class="arrow down"  data-key="ArrowDown">▼</button>
+        <button class="arrow left"  data-key="ArrowLeft">◀</button>
+        <button class="arrow right" data-key="ArrowRight">▶</button>
+        <button class="ok" data-key="Enter">OK</button>
+      </div>
+
+      <div class="rrow">
+        <button class="rbtn" data-key="-" title="Volume down">−</button>
+        <button class="rbtn" data-key="m" title="Mute">🔇</button>
+        <button class="rbtn" data-key="+" title="Volume up">＋</button>
+      </div>
+
+      <div class="rassist"><span class="mic"></span> Assistant</div>
+      <div class="keyhint">Use arrow keys + Enter · Backspace = Back · H = Home</div>
+    </div>
+  </div>
+
+<script>
+/* ============================================================
+   Brand definitions — one simulator, many skins
+   ============================================================ */
+const BRANDS = {
+  samsung: {
+    name:"Samsung", logo:"SAMSUNG", os:"Tizen",
+    accent:"#1428A0", accent2:"#5e7bff", bezel:"#0b0d12", bezelEdge:"#20232b", logoColor:"#ffffff",
+    boot:"SAMSUNG", bootSub:"Smart TV powered by Tizen", layout:"content",
+    hero:{kicker:"Samsung TV Plus", title:"Galaxy of Stories", desc:"Free live channels and on‑demand hits, built right into your Samsung Smart TV.",
+      tags:["Live","4K HDR","Free"], grad:"linear-gradient(120deg,#1428A0,#0a1230)"}
+  },
+  lg: {
+    name:"LG", logo:"LG", os:"webOS",
+    accent:"#A50034", accent2:"#ff5a8a", bezel:"#0a0a0c", bezelEdge:"#1d1a20", logoColor:"#ffffff",
+    boot:"LG", bootSub:"Life's Good · webOS", layout:"content",
+    hero:{kicker:"LG Channels", title:"OLED evo Showcase", desc:"Perfect black, infinite contrast. Explore demo reels tuned for your OLED panel.",
+      tags:["Dolby Vision","OLED","120Hz"], grad:"linear-gradient(120deg,#A50034,#2a0713)"}
+  },
+  sony: {
+    name:"Sony", logo:"SONY", os:"Google TV",
+    accent:"#0a84ff", accent2:"#6cc6ff", bezel:"#08090b", bezelEdge:"#191b1f", logoColor:"#ffffff",
+    boot:"SONY", bootSub:"BRAVIA · Powered by Google TV", layout:"content",
+    hero:{kicker:"BRAVIA CORE", title:"Cinema, Mastered", desc:"Studio‑grade picture with IMAX Enhanced titles streamed at pristine bitrates.",
+      tags:["IMAX Enhanced","4K","XR"], grad:"linear-gradient(120deg,#0a2a6b,#050912)"}
+  },
+  tcl: {
+    name:"TCL", logo:"TCL", os:"Google TV",
+    accent:"#00b3b3", accent2:"#3ce6d6", bezel:"#0a0c0d", bezelEdge:"#1a2022", logoColor:"#ffffff",
+    boot:"TCL", bootSub:"Powered by Google TV", layout:"content",
+    hero:{kicker:"For You", title:"QLED Mini‑LED", desc:"Thousands of dimming zones deliver bold color and deep contrast on your TCL.",
+      tags:["QLED","Mini‑LED","Dolby Atmos"], grad:"linear-gradient(120deg,#004d4d,#04191a)"}
+  },
+  hisense: {
+    name:"Hisense", logo:"Hisense", os:"Google TV",
+    accent:"#ff6a00", accent2:"#ffb066", bezel:"#0a0a0a", bezelEdge:"#201a16", logoColor:"#ffffff",
+    boot:"Hisense", bootSub:"VIDAA · Powered by Google TV", layout:"classic",
+    hero:{kicker:"Recommended", title:"ULED Brilliance", desc:"Peak brightness and vivid color engineered for bright rooms and big moments.",
+      tags:["ULED","144Hz","Game Mode"], grad:"linear-gradient(120deg,#8a3a00,#1f0e04)"}
+  },
+  xiaomi: {
+    name:"Xiaomi", logo:"Xiaomi", os:"Android TV",
+    accent:"#ff6900", accent2:"#ffa24d", bezel:"#090909", bezelEdge:"#1c1712", logoColor:"#ff6900",
+    boot:"Xiaomi", bootSub:"Mi TV · Android TV", layout:"classic",
+    hero:{kicker:"PatchWall", title:"Everything, One Place", desc:"PatchWall curates movies and shows across your apps on your Mi TV.",
+      tags:["Android TV","Chromecast","Dolby"], grad:"linear-gradient(120deg,#b34a00,#241005)"}
+  },
+  nvidia: {
+    name:"Shield", logo:"SHIELD", os:"Android TV",
+    accent:"#76b900", accent2:"#a6e34a", bezel:"#060706", bezelEdge:"#141a10", logoColor:"#76b900",
+    boot:"NVIDIA SHIELD", bootSub:"Android TV", layout:"classic",
+    hero:{kicker:"GeForce NOW", title:"Play Anything", desc:"Cloud gaming and AI‑upscaled 4K streaming on the ultimate Android TV device.",
+      tags:["4K AI","GeForce NOW","Dolby Vision"], grad:"linear-gradient(120deg,#3a5c00,#0c1305)"}
+  },
+  google: {
+    name:"Google TV", logo:"Google TV", os:"Google TV",
+    accent:"#4285F4", accent2:"#8ab4f8", bezel:"#0a0a0b", bezelEdge:"#1b1c1f", logoColor:"#ffffff",
+    boot:"Google TV", bootSub:"A Google experience", layout:"content",
+    hero:{kicker:"Top pick for you", title:"All your streaming, together", desc:"Recommendations from across your apps, organized in one place.",
+      tags:["Google TV","Cast","Watchlist"], grad:"linear-gradient(120deg,#1a3a7a,#0a0f1c)"}
+  }
+};
+
+/* Apps + media shared across skins (brand color chips) */
+const APPS = [
+  {n:"YouTube", c:"#FF0000"},
+  {n:"Netflix", c:"#E50914"},
+  {n:"Prime Video", c:"#00A8E1"},
+  {n:"Disney+", c:"#113CCF"},
+  {n:"Max", c:"#0046FF"},
+  {n:"Apple TV", c:"#111111"},
+  {n:"Spotify", c:"#1DB954"},
+  {n:"Twitch", c:"#9146FF"},
+  {n:"Plex", c:"#E5A00D"},
+  {n:"Play Store", c:"#0F9D58"}
+];
+const MEDIA = [
+  {t:"Nebula Rising", g:"linear-gradient(160deg,#6a11cb,#2575fc)"},
+  {t:"The Deep North", g:"linear-gradient(160deg,#0f2027,#2c5364)"},
+  {t:"Amber Roads", g:"linear-gradient(160deg,#c94b4b,#4b134f)"},
+  {t:"Silent Orbit", g:"linear-gradient(160deg,#232526,#414345)"},
+  {t:"Golden Hour", g:"linear-gradient(160deg,#f7971e,#ffd200)"},
+  {t:"Tideborne", g:"linear-gradient(160deg,#136a8a,#267871)"},
+  {t:"Last Signal", g:"linear-gradient(160deg,#3a1c71,#d76d77)"},
+  {t:"Verdant", g:"linear-gradient(160deg,#134e5e,#71b280)"}
+];
+
+/* ============================================================
+   State + element refs
+   ============================================================ */
+const el = id => document.getElementById(id);
+const root = document.documentElement;
+let currentBrand = "samsung";
+let power = "off";           // off | booting | home | app
+let focusR = 0, focusC = 0;  // focused row / column
+let grid = [];               // 2D array of focusable cells (built per render)
+let muted = false;
+
+/* ============================================================
+   Brand picker UI
+   ============================================================ */
+const picker = el("brandPicker");
+Object.entries(BRANDS).forEach(([key,b])=>{
+  const btn = document.createElement("button");
+  btn.className = "brand-btn" + (key===currentBrand?" active":"");
+  btn.textContent = b.name;
+  btn.dataset.brand = key;
+  btn.onclick = ()=>selectBrand(key);
+  picker.appendChild(btn);
+});
+
+function selectBrand(key){
+  currentBrand = key;
+  document.querySelectorAll(".brand-btn").forEach(x=>x.classList.toggle("active",x.dataset.brand===key));
+  applyTheme(key);
+  // If TV is on, reboot into the new brand so the switch feels real
+  if(power==="off"){ /* just update badges below */ }
+  else { powerOn(true); }
+  refreshBadges();
+}
+
+function applyTheme(key){
+  const b = BRANDS[key];
+  root.style.setProperty("--accent", b.accent);
+  root.style.setProperty("--accent-2", b.accent2);
+  root.style.setProperty("--bezel", b.bezel);
+  root.style.setProperty("--bezel-edge", b.bezelEdge);
+  root.style.setProperty("--logo", b.logoColor);
+}
+
+function refreshBadges(){
+  const b = BRANDS[currentBrand];
+  el("screenBrand").textContent = b.logo;
+  el("remoteBrand").textContent = b.logo;
+  el("bootLogo").textContent = b.boot;
+  el("bootSub").textContent = b.bootSub;
+}
+
+/* ============================================================
+   Power / boot flow
+   ============================================================ */
+function showLayer(name){
+  ["offLayer","bootLayer","homeLayer","appLayer"].forEach(l=>{
+    el(l).classList.toggle("hidden", l!==name);
+  });
+}
+
+el("offLayer").onclick = ()=>powerOn();
+el("btnPower").onclick = ()=> power==="off" ? powerOn() : powerOff();
+
+function powerOn(reboot){
+  applyTheme(currentBrand);
+  refreshBadges();
+  power = "booting";
+  // restart boot animation by re-inserting nodes
+  const boot = el("bootLayer");
+  const clone = boot.cloneNode(true);
+  boot.replaceWith(clone);
+  showLayer("bootLayer");
+  setTimeout(()=>{ if(power==="booting"){ power="home"; renderHome(); showLayer("homeLayer"); } }, 2300);
+}
+function powerOff(){
+  power="off";
+  showLayer("offLayer");
+}
+
+/* ============================================================
+   Home render (two layouts: content-forward vs classic)
+   ============================================================ */
+function renderHome(){
+  const b = BRANDS[currentBrand];
+  const now = new Date();
+  const hr = now.getHours();
+  const greet = hr<12?"Good morning":hr<18?"Good afternoon":"Good evening";
+  const time = now.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+  grid = [];
+
+  const contentLayout = b.layout==="content";
+
+  let html = `
+    <div class="status-bar">
+      <span class="greet">${greet}</span>
+      <span class="os-badge">${b.os}</span>
+      <span class="st-right"><span>${time}</span> <span>▮▮▮ Wi‑Fi</span></span>
+    </div>`;
+
+  // Hero only in content-forward layout
+  if(contentLayout){
+    html += `
+      <div class="hero" style="background:${b.hero.grad}">
+        <div class="hero-inner">
+          <div class="kicker">${b.hero.kicker}</div>
+          <h2>${b.hero.title}</h2>
+          <p>${b.hero.desc}</p>
+          <div class="tags">${b.hero.tags.map(t=>`<span>${t}</span>`).join("")}</div>
+        </div>
+      </div>`;
+  }
+
+  // Apps row
+  const appCount = contentLayout ? 6 : 8;
+  html += `<div class="row"><h3>${contentLayout?"Your apps":"Apps"}</h3><div class="tiles" data-row="apps">`;
+  APPS.slice(0,appCount).forEach((a,i)=>{
+    html += `<div class="tile app" data-r="0" data-c="${i}" style="background:linear-gradient(135deg,${a.c},${shade(a.c,-30)})">${a.n}</div>`;
+  });
+  html += `</div></div>`;
+
+  // Media rows
+  const rows = contentLayout
+    ? [["Continue watching", MEDIA.slice(0,6)],["Trending now", MEDIA.slice(2,8)]]
+    : [["Recommended", MEDIA.slice(0,6)],["Live TV", MEDIA.slice(2,8)]];
+
+  rows.forEach(([title, items], ri)=>{
+    html += `<div class="row"><h3>${title}</h3><div class="tiles">`;
+    items.forEach((m,ci)=>{
+      html += `<div class="tile media" data-r="${ri+1}" data-c="${ci}" style="background:${m.g}">
+                 <div class="cap">${m.t}</div></div>`;
+    });
+    html += `</div></div>`;
+  });
+
+  el("home").innerHTML = html;
+
+  // Build focus grid from rendered tiles
+  const rowEls = [...el("home").querySelectorAll(".tiles")];
+  grid = rowEls.map(r => [...r.querySelectorAll(".tile")]);
+  focusR = 0; focusC = 0;
+  setFocus();
+}
+
+function setFocus(){
+  document.querySelectorAll('.tile[data-focus="true"]').forEach(t=>t.dataset.focus="false");
+  const row = grid[focusR];
+  if(!row) return;
+  focusC = Math.max(0, Math.min(focusC, row.length-1));
+  const cell = row[focusC];
+  if(cell){ cell.dataset.focus="true"; cell.scrollIntoView({block:"nearest",inline:"center",behavior:"smooth"}); }
+}
+
+/* ============================================================
+   Navigation
+   ============================================================ */
+function nav(dir){
+  if(power!=="home") return;
+  if(dir==="up"   && focusR>0){ focusR--; }
+  else if(dir==="down" && focusR<grid.length-1){ focusR++; }
+  else if(dir==="left" && focusC>0){ focusC--; }
+  else if(dir==="right"){ const row=grid[focusR]; if(row && focusC<row.length-1) focusC++; }
+  setFocus();
+}
+function select(){
+  if(power==="home"){
+    const cell = grid[focusR] && grid[focusR][focusC];
+    if(!cell) return;
+    openApp(cell);
+  } else if(power==="app"){
+    /* nothing */
+  }
+}
+function back(){
+  if(power==="app"){ power="home"; showLayer("homeLayer"); }
+  else if(power==="home"){ /* stay */ }
+}
+function goHome(){
+  if(power==="app"){ power="home"; showLayer("homeLayer"); }
+}
+
+function openApp(cell){
+  const label = cell.classList.contains("app")
+    ? cell.textContent.trim()
+    : cell.querySelector(".cap").textContent.trim();
+  el("appOpenLogo").textContent = label;
+  power="app";
+  showLayer("appLayer");
+}
+
+/* ============================================================
+   Input: on-screen buttons + keyboard
+   ============================================================ */
+function pressKey(k){
+  switch(k){
+    case "ArrowUp": nav("up"); break;
+    case "ArrowDown": nav("down"); break;
+    case "ArrowLeft": nav("left"); break;
+    case "ArrowRight": nav("right"); break;
+    case "Enter": select(); break;
+    case "Backspace": back(); break;
+    case "h": case "H": goHome(); break;
+    case "+": case "-": /* volume no-op visual */ break;
+    case "m": case "M": muted=!muted; break;
+  }
+}
+
+document.querySelectorAll("[data-key]").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    flash(btn);
+    pressKey(btn.dataset.key);
+  });
+});
+
+function flash(btn){
+  btn.classList.add("press");
+  setTimeout(()=>btn.classList.remove("press"),140);
+}
+
+document.addEventListener("keydown", e=>{
+  const map = {ArrowUp:1,ArrowDown:1,ArrowLeft:1,ArrowRight:1,Enter:1,Backspace:1};
+  if(map[e.key]) e.preventDefault();
+  // reflect on the matching on-screen button
+  const btn = document.querySelector(`[data-key="${e.key}"]`) ||
+              (/(h|H)/.test(e.key)?document.querySelector('[data-key="h"]'):null);
+  if(btn) flash(btn);
+  if(power==="off" && (e.key==="Enter"||e.key===" ")){ powerOn(); return; }
+  pressKey(e.key);
+});
+
+/* ============================================================
+   Small util: shade a hex color
+   ============================================================ */
+function shade(hex, pct){
+  const n = parseInt(hex.slice(1),16);
+  let r=(n>>16)&255, g=(n>>8)&255, b=n&255;
+  r=Math.max(0,Math.min(255,r+pct));
+  g=Math.max(0,Math.min(255,g+pct));
+  b=Math.max(0,Math.min(255,b+pct));
+  return "#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+}
+
+/* init */
+applyTheme(currentBrand);
+refreshBadges();
+</script>
+</body>
+</html>

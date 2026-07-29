@@ -1,0 +1,38 @@
+# ── Private TLS identity — NEVER commit here ──────────────────────────────────
+# remoteclient_cert.pem / remoteclient_key.pem is a RemoteCA-signed identity
+# extracted from Hisense's official app. It must NOT be published. This copy of
+# the tester lives in a repo that may be public, so the keys are intentionally
+# excluded. Place them next to hisense_tv_tester.py locally and the mock uses
+# them automatically; without them it falls back to a self-signed cert (fine for
+# your own app + the self-test, but the official RemoteNOW app needs the real one).
+remoteclient_cert.pem
+remoteclient_key.pem
+*.p12
+*.bks
+
+# ── Auto-generated fallback certs ─────────────────────────────────────────────
+mock_hisense_cert.pem
+mock_hisense_key.pem
+
+# ── Third-party binaries / decompile toolchain (never redistribute) ───────────
+*.apk
+*.ipa
+*.xapk
+*.dex
+remotenow_extracted/
+vidaa_extracted/
+remotenow_decompiled/
+jre/
+jadx-tool/
+
+# ── Scratch / captures / logs ─────────────────────────────────────────────────
+*.pcap
+*.out
+*.log
+
+# ── Python / OS noise ─────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+.DS_Store
+.venv/
+venv/

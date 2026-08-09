@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video Studio — AI video generation</title>
+<meta name="description" content="Browser-based AI video generation studio. Bring your own API key.">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">🎬</span>
+    <div>
+      <h1>Video Studio</h1>
+      <p class="brand-sub">Bring-your-own-key AI video generation</p>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <span id="keyStatus" class="pill pill-warn">No API key</span>
+    <button id="btnSettings" class="btn btn-ghost" type="button">Settings</button>
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- ── Composer ───────────────────────────────────────────── -->
+  <section class="panel composer" aria-label="Composer">
+    <h2 class="panel-title">Compose</h2>
+
+    <label class="field">
+      <span class="field-label">Prompt</span>
+      <textarea id="prompt" rows="5" placeholder="A lone cyclist crossing a rain-slicked Tokyo intersection at night, neon reflections, shallow depth of field"></textarea>
+    </label>
+
+    <div class="field">
+      <span class="field-label">
+        Style presets
+        <button id="btnClearStyles" class="linkbtn" type="button">clear</button>
+      </span>
+      <div id="styleChips" class="chips"></div>
+    </div>
+
+    <details class="disclosure">
+      <summary>Reference image (image → video) <span id="imageBadge" class="badge hidden">attached</span></summary>
+      <div class="dropzone" id="imageDrop">
+        <input type="file" id="imageInput" accept="image/*" hidden>
+        <div id="imagePreviewWrap" class="hidden">
+          <img id="imagePreview" alt="Reference frame preview">
+          <button id="btnClearImage" class="btn btn-ghost btn-sm" type="button">Remove</button>
+        </div>
+        <p id="imageHint">Drop an image, or <button class="linkbtn" id="btnPickImage" type="button">browse</button>. Used as the first frame.</p>
+      </div>
+      <label class="field" style="padding: 0 10px 10px">
+        <span class="field-label">…or an image URL <em class="muted">required by Luma</em></span>
+        <input id="imageUrl" type="url" placeholder="https://example.com/frame.jpg">
+      </label>
+    </details>
+
+    <label class="field">
+      <span class="field-label">Negative prompt <em class="muted">optional</em></span>
+      <input id="negativePrompt" type="text" placeholder="blurry, warped hands, text overlays, watermark">
+    </label>
+
+    <div class="grid-2">
+      <label class="field">
+        <span class="field-label">Provider</span>
+        <select id="provider"></select>
+      </label>
+      <label class="field">
+        <span class="field-label">
+          Model
+          <button id="btnRefreshModels" class="linkbtn" type="button" title="Fetch the live model list using your API key">refresh</button>
+        </span>
+        <select id="model"></select>
+      </label>
+    </div>
+
+    <div class="grid-3">
+      <label class="field">
+        <span class="field-label">Aspect</span>
+        <select id="aspectRatio"></select>
+      </label>
+      <label class="field">
+        <span class="field-label">Resolution</span>
+        <select id="resolution"></select>
+      </label>
+      <label class="field">
+        <span class="field-label">Duration</span>
+        <select id="duration"></select>
+      </label>
+    </div>
+
+    <div class="grid-3">
+      <label class="field">
+        <span class="field-label">Count</span>
+        <select id="sampleCount">
+          <option value="1">1</option><option value="2">2</option>
+          <option value="3">3</option><option value="4">4</option>
+        </select>
+      </label>
+      <label class="field">
+        <span class="field-label">Seed <em class="muted">blank = random</em></span>
+        <input id="seed" type="number" min="0" max="4294967295" placeholder="—">
+      </label>
+      <label class="field field-check">
+        <span class="field-label">Audio</span>
+        <label class="switch"><input id="generateAudio" type="checkbox" checked><span></span></label>
+      </label>
+    </div>
+
+    <div id="capNotes" class="notes"></div>
+
+    <div class="composer-foot">
+      <div class="estimate">
+        <span id="estimate">—</span>
+        <small id="estimateNote">estimated cost</small>
+      </div>
+      <button id="btnGenerate" class="btn btn-primary" type="button">Generate</button>
+    </div>
+    <p id="composerError" class="error hidden" role="alert"></p>
+  </section>
+
+  <!-- ── Work area ──────────────────────────────────────────── -->
+  <section class="panel workarea" aria-label="Results">
+    <div class="tabs" role="tablist">
+      <button class="tab is-active" data-tab="queue" role="tab">Queue <span id="queueCount" class="count">0</span></button>
+      <button class="tab" data-tab="gallery" role="tab">Gallery <span id="galleryCount" class="count">0</span></button>
+      <button class="tab" data-tab="storyboard" role="tab">Storyboard</button>
+    </div>
+
+    <div id="tab-queue" class="tabpane is-active">
+      <div class="pane-tools">
+        <button id="btnClearFinished" class="btn btn-ghost btn-sm" type="button">Clear finished</button>
+        <button id="btnCancelAll" class="btn btn-ghost btn-sm" type="button">Cancel pending</button>
+      </div>
+      <div id="queueList" class="list"></div>
+      <p id="queueEmpty" class="empty">Nothing queued. Write a prompt and hit Generate.</p>
+    </div>
+
+    <div id="tab-gallery" class="tabpane">
+      <div class="pane-tools">
+        <input id="gallerySearch" type="search" placeholder="Filter by prompt…">
+        <button id="btnDownloadAll" class="btn btn-ghost btn-sm" type="button">Download all</button>
+      </div>
+      <div id="galleryGrid" class="gallery"></div>
+      <p id="galleryEmpty" class="empty">No clips yet. Finished generations land here and persist across reloads.</p>
+    </div>
+
+    <div id="tab-storyboard" class="tabpane">
+      <div class="pane-tools">
+        <button id="btnAddShot" class="btn btn-ghost btn-sm" type="button">Add shot</button>
+        <button id="btnGenerateBoard" class="btn btn-primary btn-sm" type="button">Generate all shots</button>
+        <button id="btnPlayBoard" class="btn btn-ghost btn-sm" type="button">Play sequence</button>
+      </div>
+      <div id="shotList" class="shots"></div>
+      <p id="shotEmpty" class="empty">A storyboard is an ordered list of shots. Generate them in one go, then play them back to back.</p>
+    </div>
+  </section>
+</main>
+
+<!-- ── Settings modal ───────────────────────────────────────── -->
+<dialog id="settings" class="modal">
+  <form method="dialog" class="modal-inner">
+    <h2>Settings</h2>
+
+    <div class="callout callout-warn">
+      <strong>About your keys.</strong> They are stored in this browser's <code>localStorage</code> and sent
+      straight from this page to the provider. Anyone with access to this browser profile — or any script running
+      on this page — can read them. Use a key scoped to this project, set a spend limit, and never commit one to git.
+    </div>
+
+    <div id="keyFields" class="keyfields"></div>
+
+    <label class="field">
+      <span class="field-label">CORS proxy URL <em class="muted">needed for Runway / Luma / fal</em></span>
+      <input id="proxyUrl" type="url" placeholder="https://your-worker.workers.dev/">
+      <small class="muted">Google Veo works without this. Other providers block browser calls; deploy
+      <code>worker/cors-proxy.js</code> and paste the URL here. See <a href="worker/README.md">worker/README.md</a>.</small>
+    </label>
+
+    <div class="grid-2">
+      <label class="field">
+        <span class="field-label">Concurrent jobs</span>
+        <input id="concurrency" type="number" min="1" max="6" value="2">
+      </label>
+      <label class="field">
+        <span class="field-label">Poll interval (s)</span>
+        <input id="pollInterval" type="number" min="2" max="60" value="8">
+      </label>
+    </div>
+
+    <div class="modal-foot">
+      <button id="btnWipe" class="btn btn-danger btn-sm" type="button">Erase all local data</button>
+      <span class="spacer"></span>
+      <button class="btn btn-primary" value="save">Done</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ── Lightbox ─────────────────────────────────────────────── -->
+<dialog id="lightbox" class="modal modal-wide">
+  <div class="modal-inner">
+    <video id="lightboxVideo" controls playsinline></video>
+    <p id="lightboxMeta" class="meta"></p>
+    <div class="modal-foot">
+      <button id="btnLbDownload" class="btn btn-ghost btn-sm" type="button">Download</button>
+      <button id="btnLbReuse" class="btn btn-ghost btn-sm" type="button">Reuse settings</button>
+      <button id="btnLbDelete" class="btn btn-danger btn-sm" type="button">Delete</button>
+      <span class="spacer"></span>
+      <button id="btnLbClose" class="btn btn-primary btn-sm" type="button">Close</button>
+    </div>
+  </div>
+</dialog>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

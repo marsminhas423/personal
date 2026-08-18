@@ -171,10 +171,14 @@ export async function assembleVideo(projectId) {
   updateProject(projectId, { status: "rendering" });
   appendLog(projectId, "Concatenating scene clips...");
 
+  // The concat demuxer's mini-language also treats backslash as an escape
+  // character, so Windows paths need forward slashes here too.
   const concatListPath = path.join(dir, "concat.txt");
   fs.writeFileSync(
     concatListPath,
-    project.scenes.map((s) => `file '${s.clipPath.replace(/'/g, "'\\''")}'`).join("\n")
+    project.scenes
+      .map((s) => `file '${s.clipPath.replace(/\\/g, "/").replace(/'/g, "'\\''")}'`)
+      .join("\n")
   );
 
   const silentCombined = path.join(dir, "combined-video-only.mp4");

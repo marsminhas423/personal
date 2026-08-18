@@ -38,6 +38,14 @@ function assEscape(text) {
   return (text || "").replace(/\r?\n/g, "\\N").replace(/[{}]/g, "");
 }
 
+// ffmpeg's filtergraph parser treats ':' and '\' as syntax characters, which
+// breaks Windows paths like "C:\Users\...\scene.ass" when passed to -vf
+// subtitles=<path>. Convert to forward slashes and escape the drive-letter
+// colon so the same code works on Windows, macOS, and Linux.
+function toFilterPath(p) {
+  return p.replace(/\\/g, "/").replace(/:/g, "\\:");
+}
+
 function buildAss({ w, h, title, dialogue, durationSeconds }) {
   const fontSize = Math.round(w / 18);
   const dialogueFontSize = Math.round(w / 24);
@@ -75,7 +83,7 @@ export async function generatePlaceholderClip({ outPath, description, dialogue, 
       "-y",
       "-f", "lavfi",
       "-i", `color=c=${bg}:s=${w}x${h}:d=${durationSeconds}`,
-      "-vf", `subtitles=${assPath}`,
+      "-vf", `subtitles=${toFilterPath(assPath)}`,
       "-r", String(fps),
       "-pix_fmt", "yuv420p",
       outPath,

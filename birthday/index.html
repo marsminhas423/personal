@@ -84,6 +84,7 @@
   .slide.active .d3 { animation-delay: 0.78s; }
   .slide.active .d4 { animation-delay: 1.14s; }
   .slide.active .d5 { animation-delay: 1.5s; }
+  .slide.active .d6 { animation-delay: 1.86s; }
 
   .eyebrow { font-family: var(--sans); font-size: 11px; font-weight: 400; letter-spacing: 0.42em; text-transform: uppercase; color: var(--coral-deep); padding-left: 0.42em; }
   .whisper { font-family: var(--sans); font-size: clamp(0.72rem, 3.4vw, 0.82rem); letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted); padding-left: 0.24em; }
@@ -111,16 +112,27 @@
     border: 1px solid rgba(193,87,63,0.3); border-radius: 4px;
     box-shadow: 0 26px 50px -28px rgba(120,72,52,0.35), 0 0 0 1px rgba(255,255,255,0.4) inset; overflow: hidden;
   }
-  .photo-inner img { width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 2px; display: block; animation: kenburns 12s ease-out both; }
+  .photo-inner img { width: 100%; height: 100%; object-fit: cover; object-position: center; image-orientation: from-image; border-radius: 2px; display: block; animation: kenburns 12s ease-out both; }
   .photo-inner.ph { display: flex; align-items: center; justify-content: center; background: repeating-linear-gradient(135deg, #FCEEE6 0 14px, #FBE4D8 14px 28px); }
   .photo-inner.ph::after { content: "tumhari photo yahan \00A0\2726"; font-family: var(--sans); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--coral-deep); opacity: 0.65; text-align: center; padding: 0 20px; }
   .cap { font-family: var(--serif); font-style: italic; font-size: min(1.35rem, 5vw); line-height: 1.4; color: var(--coral-deep); letter-spacing: 0.01em; max-width: 26ch; }
 
-  #final .hb { font-family: var(--sans); font-size: 12px; letter-spacing: 0.44em; text-transform: uppercase; color: var(--coral-deep); padding-left: 0.44em; }
-  #final .love { font-family: var(--serif); font-weight: 400; font-size: min(1.5rem, 5.6vw); line-height: 1.62; letter-spacing: 0.01em; color: var(--charcoal); max-width: 32ch; }
-  #final .love em { font-style: italic; color: var(--coral-deep); }
-  #final .love .br { display: block; height: 0.7em; }
-  #final .sign { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: min(1.7rem, 6vw); color: var(--coral-deep); letter-spacing: 0.01em; }
+  /* smaller keepsake frame for the kiss photo */
+  .photo-inner.keepsake { max-width: 260px; aspect-ratio: 4 / 5; }
+
+  #final .addr { font-family: var(--sans); font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); padding-left: 0.3em; }
+  #final .hb { font-family: var(--sans); font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--coral-deep); padding-left: 0.24em; line-height: 1.6; }
+  #final .love { font-family: var(--serif); font-weight: 400; font-size: min(1.32rem, 5vw); line-height: 1.64; letter-spacing: 0.008em; color: var(--charcoal); max-width: 34ch; }
+  #final .love + .love { margin-top: -8px; }
+  .heart-line {
+    font-family: var(--serif); font-weight: 500; font-style: italic; font-size: min(1.9rem, 7vw);
+    line-height: 1.4; color: var(--coral-deep); max-width: 26ch;
+  }
+  #final .sign-to { font-family: var(--serif); font-style: italic; font-size: min(1.2rem, 4.6vw); color: var(--charcoal-soft); }
+  #final .sign-name {
+    font-family: var(--serif); font-style: italic; font-weight: 600; font-size: min(2.6rem, 9.4vw);
+    color: var(--coral-deep); letter-spacing: 0.02em; margin-top: -6px;
+  }
   .divider { position: relative; width: 60%; max-width: 220px; height: 1px; overflow: hidden; background: linear-gradient(90deg, transparent, var(--gold) 20%, var(--gold) 80%, transparent); }
   .divider::after { content: ""; position: absolute; top: 0; left: -45%; width: 45%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.95), transparent); animation: shimmer 4.5s ease-in-out infinite; }
   .divider .dot { position: absolute; top: 50%; left: 50%; width: 5px; height: 5px; background: var(--gold); border-radius: 50%; transform: translate(-50%, -50%) rotate(45deg); }
@@ -148,7 +160,7 @@
   @keyframes drift { 0% { transform: translateY(20px) translateX(0); opacity: 0; } 12% { opacity: var(--peak, 0.6); } 88% { opacity: var(--peak, 0.6); } 100% { transform: translateY(-120px) translateX(var(--sway, 12px)); opacity: 0; } }
   @keyframes sparkFloat { 0% { opacity: 0; transform: translate(0,0) scale(0.4) rotate(0deg); } 18% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.05) rotate(90deg); } }
 
-  @media (max-height: 740px) { .beat.g-lg { gap: 22px; } .beat.g-md { gap: 20px; } .photo-inner { max-width: 250px; } }
+  @media (max-height: 780px) { .beat.g-lg { gap: 22px; } .beat.g-md { gap: 18px; } .photo-inner { max-width: 240px; } #final .love { font-size: min(1.18rem, 4.6vw); line-height: 1.55; } }
 
   @media (prefers-reduced-motion: reduce) {
     .slide.active .rise, .slide.active .pop, .slide.active .blur { animation: fadeOnly 0.6s ease both !important; }
@@ -190,11 +202,11 @@
         </div>
       </section>
 
-      <!-- 2 · PHOTO 1 -->
+      <!-- 2 · PHOTO: big smile -->
       <section class="slide" id="s2" aria-hidden="true">
         <div class="beat g-sm">
           <figure class="photo anim rise d1">
-            <div class="photo-inner" data-slot="1"><img src="assets/1.jpg" alt="" onerror="this.remove(); this.parentNode.classList.add('ph');"></div>
+            <div class="photo-inner" data-slot="1"><img src="assets/IMG_3685.jpeg" alt="" onerror="this.remove(); this.parentNode.classList.add('ph');"></div>
             <figcaption class="cap anim rise d2">us muskurahat se&hellip;<br />mera din shuru hota hai.</figcaption>
           </figure>
         </div>
@@ -219,12 +231,12 @@
         </div>
       </section>
 
-      <!-- 5 · PHOTO 2 -->
+      <!-- 5 · PHOTO: cheek on shoulder -->
       <section class="slide" id="s5" aria-hidden="true">
         <div class="beat g-sm">
           <figure class="photo anim rise d1">
-            <div class="photo-inner" data-slot="2"><img src="assets/2.jpg" alt="" onerror="this.remove(); this.parentNode.classList.add('ph');"></div>
-            <figcaption class="cap anim rise d2">ye hansi &mdash; duniya ki<br />sab se pyaari cheez.</figcaption>
+            <div class="photo-inner" data-slot="2"><img src="assets/IMG_2979.jpeg" alt="" onerror="this.remove(); this.parentNode.classList.add('ph');"></div>
+            <figcaption class="cap anim rise d2">tumhare kandhe pe sar rakh kar,<br />sab sukoon mil jaata hai.</figcaption>
           </figure>
         </div>
       </section>
@@ -237,11 +249,11 @@
         </div>
       </section>
 
-      <!-- 7 · PHOTO 3 -->
+      <!-- 7 · PHOTO: blue hijab close-up -->
       <section class="slide" id="s7" aria-hidden="true">
         <div class="beat g-sm">
           <figure class="photo anim rise d1">
-            <div class="photo-inner" data-slot="3"><img src="assets/3.jpg" alt="" onerror="this.remove(); this.parentNode.classList.add('ph');"></div>
+            <div class="photo-inner" data-slot="3"><img src="assets/IMG_3628.jpeg" alt="" onerror="this.remove(); this.parentNode.classList.add('ph');"></div>
             <figcaption class="cap anim rise d2">in aankhon mein&hellip;<br />meri poori duniya hai.</figcaption>
           </figure>
         </div>
@@ -256,11 +268,11 @@
         </div>
       </section>
 
-      <!-- 9 · PHOTO 4 -->
+      <!-- 9 · PHOTO: office together -->
       <section class="slide" id="s9" aria-hidden="true">
         <div class="beat g-sm">
           <figure class="photo anim rise d1">
-            <div class="photo-inner" data-slot="4"><img src="assets/4.jpg" alt="" onerror="this.remove(); this.parentNode.classList.add('ph');"></div>
+            <div class="photo-inner" data-slot="4"><img src="assets/IMG_3728.jpeg" alt="" onerror="this.remove(); this.parentNode.classList.add('ph');"></div>
             <figcaption class="cap anim rise d2">saath mein sapne,<br />saath mein har manzil.</figcaption>
           </figure>
         </div>
@@ -274,32 +286,74 @@
         </div>
       </section>
 
-      <!-- 11 · PHOTO 5 -->
+      <!-- 11 · PHOTO: close together, smiling -->
       <section class="slide" id="s11" aria-hidden="true">
         <div class="beat g-sm">
           <figure class="photo anim rise d1">
-            <div class="photo-inner" data-slot="5"><img src="assets/5.jpg" alt="" onerror="this.remove(); this.parentNode.classList.add('ph');"></div>
+            <div class="photo-inner" data-slot="5"><img src="assets/IMG_2868.jpeg" alt="" onerror="this.remove(); this.parentNode.classList.add('ph');"></div>
+            <figcaption class="cap anim rise d2">tumhare paas hi,<br />sukoon hai mera.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- 12 · PHOTO: playful mirror selfie -->
+      <section class="slide" id="s12" aria-hidden="true">
+        <div class="beat g-sm">
+          <figure class="photo anim rise d1">
+            <div class="photo-inner" data-slot="6"><img src="assets/IMG_3703.jpeg" alt="" onerror="this.remove(); this.parentNode.classList.add('ph');"></div>
             <figcaption class="cap anim rise d2">har tasveer mein &mdash; hum.</figcaption>
           </figure>
         </div>
       </section>
 
-      <!-- 12 · FINAL love-note -->
+      <!-- 13 · the kiss, before the letter -->
+      <section class="slide" id="s13" aria-hidden="true">
+        <div class="beat g-sm">
+          <figure class="photo anim rise d1">
+            <div class="photo-inner keepsake" data-slot="7"><img src="assets/IMG_2969.jpeg" alt="" onerror="this.remove(); this.parentNode.classList.add('ph');"></div>
+            <figcaption class="cap anim rise d2">Before I say it all&hellip;<br />just this.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- 14 · FINAL letter -->
       <section class="slide" id="final" data-burst aria-hidden="true">
-        <div class="beat g-md">
-          <span class="hb anim rise d1">Happy Birthday, Hajrah</span>
+        <div class="beat g-sm">
+          <span class="addr anim rise d1">To my love</span>
           <div class="divider anim rise d1" aria-hidden="true"><span class="dot"></span></div>
+
           <p class="love anim rise d2">
-            Har saal, har din, har lamha &mdash;<br />
-            main shukar karta hoon ke <em>tum meri ho.</em>
-            <span class="br"></span>
-            Meri Coco, meri Haju, meri Pumpo &mdash; tum meri har khushi ho, aur meri har dua bhi. Thank you for being my home, my peace, my person.
-            <span class="br"></span>
-            Aaj ka din tumhare naam &mdash; aur aane wale <em>saare</em> din bhi.
+            Here&rsquo;s to my love. My heart. My jaan. My world. My future wife.<br />
+            You are the flower of my garden, the fragrance of my home, the smile on my face.<br />
+            You are the blessing I have always prayed for.
           </p>
-          <p class="sign anim rise d4">I love you &mdash; today &amp; always.<br />&mdash; tumhara, Abdul Raheem</p>
-          <div class="divider anim rise d5" aria-hidden="true"><span class="dot"></span></div>
-          <button class="replay anim rise d5" id="replay" type="button">Phir se dekhein &middot; Replay</button>
+
+          <p class="love anim rise d3">
+            You bring peace to my heart, calmness to my mind, pleasure to my soul, and colour to my life.
+            I just can&rsquo;t wait to say all of this to you while hugging you, while kissing you &mdash;
+            but soon, very soon, you will be mine. Officially. Islamically. Socially. In every other manner too.
+          </p>
+
+          <p class="love anim rise d4">
+            I just want you to know &mdash; you ignite me, you spark me, you bring joy to my heart and purpose to my life.
+            You are my best friend, more than my wife.
+          </p>
+
+          <p class="love anim rise d5">
+            So whenever you feel lonely, always come to me. Whenever you feel frustrated, or tense, always come to me.
+            Reside in these arms that you call home &mdash; and may you always find them warm and comfortable.
+          </p>
+
+          <span class="hb anim rise d6">Happy Birthday, Mrs. Hajrah Raheem</span>
+
+          <p class="heart-line anim rise d6">You don&rsquo;t only have my heart&hellip;<br />you ARE my heart.</p>
+
+          <div class="divider anim rise d6" aria-hidden="true"><span class="dot"></span></div>
+
+          <span class="sign-to anim rise d6">To my love,</span>
+          <span class="sign-name anim rise d6">Raheem</span>
+
+          <button class="replay anim rise d6" id="replay" type="button">Phir se dekhein &middot; Replay</button>
         </div>
       </section>
     </main>

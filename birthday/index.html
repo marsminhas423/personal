@@ -56,7 +56,7 @@
   .mote { position: absolute; border-radius: 50%; background: radial-gradient(circle, var(--coral-soft) 0%, rgba(226,114,90,0.28) 45%, transparent 72%); animation: drift linear infinite; opacity: 0; will-change: transform, opacity; }
 
   .frame { position: fixed; inset: 18px; z-index: 4; pointer-events: none; border: 1px solid rgba(193,87,63,0.28); border-radius: 3px; }
-  .corner { position: fixed; z-index: 5; font-size: 14px; line-height: 1; color: var(--coral-deep); opacity: 0.75; pointer-events: none; }
+  .corner { position: fixed; z-index: 5; font-size: 14px; line-height: 1; color: var(--coral-deep); opacity: 0.85; text-shadow: 0 1px 4px rgba(255,248,241,0.6); pointer-events: none; }
   .corner.tl { top: 30px; left: 30px; } .corner.tr { top: 30px; right: 30px; }
   .corner.bl { bottom: 30px; left: 30px; } .corner.br { bottom: 30px; right: 30px; }
 
@@ -74,6 +74,20 @@
   .slide.active { opacity: 1; visibility: visible; pointer-events: auto; }
   .beat { margin: auto; width: 100%; max-width: 580px; display: flex; flex-direction: column; align-items: center; }
   .beat.g-sm { gap: 18px; } .beat.g-md { gap: 26px; } .beat.g-lg { gap: 32px; }
+
+  /* intro: photo bleeding into the top half, text resting in the warmth below */
+  .slide.intro-slide { padding: 0; flex-direction: column; align-items: stretch; }
+  .intro-photo { position: relative; flex: 0 0 auto; height: 50%; min-height: 230px; overflow: hidden; }
+  .intro-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; filter: saturate(0.94); animation: kenburns 20s ease-out both; }
+  .intro-photo::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(to bottom, rgba(255,248,241,0) 38%, rgba(255,246,238,0.7) 72%, var(--bg-1) 97%);
+  }
+  .intro-text {
+    flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 22px; width: 100%; max-width: 560px; margin: 0 auto; text-align: center;
+    padding: 18px clamp(24px, 7vw, 46px) calc(env(safe-area-inset-bottom) + 40px);
+  }
 
   .anim { opacity: 0; }
   .slide.active .rise { animation: riseIn 0.95s var(--ease) both; }
@@ -186,9 +200,12 @@
     <main class="stages" role="button" tabindex="0" aria-label="Tap anywhere to continue">
 
       <!-- 0 · intro -->
-      <section class="slide active" id="s0">
-        <div class="beat g-md">
-          <span class="whisper anim blur d1">ruk jao &mdash; scroll mat karo</span>
+      <section class="slide intro-slide active" id="s0">
+        <div class="intro-photo" aria-hidden="true">
+          <img src="assets/IMG_2868.jpeg" alt="" onerror="this.parentNode.style.display='none';">
+        </div>
+        <div class="intro-text">
+          <span class="whisper anim blur d1">ek lamha, sirf humara&hellip;</span>
           <p class="big anim blur d2">Aaj ek<br />khaas din hai.</p>
           <p class="sub anim rise d3">Aur ye sirf tumhare liye hai,<br /><span class="nickname">meri Coco.</span></p>
         </div>

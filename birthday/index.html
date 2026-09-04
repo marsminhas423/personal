@@ -9,20 +9,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --ink: #17100F;
-    --ink-2: #241419;
-    --ivory: #F8F3ED;
-    --ivory-deep: #ECE1D5;
-    --gold: #C8A97E;
-    --gold-soft: #E4D2B4;
-    --gold-deep: #B08E5C;
-    --gold-bright: #EBD6AE;
-    --rose: #E4B7A0;
-    --rose-deep: #C98A72;
-    --charcoal: #33282A;
-    --charcoal-soft: #5E5052;
-    --cream: #F0E6DC;
-    --cream-dim: #B6A498;
+    /* bright, warm, romantic — peach dawn deepening into soft coral bloom */
+    --bg-1: #FFF8F1;
+    --bg-2: #FDEDE1;
+    --bg-3: #FBE1CE;
+    --bloom-1: #FFF3EF;
+    --bloom-2: #FCDFD6;
+    --bloom-3: #F6C7B9;
+    --coral: #E2725A;
+    --coral-deep: #C1573F;
+    --coral-soft: #F0A48C;
+    --gold: #D2A466;
+    --gold-soft: #E7C79B;
+    --charcoal: #3C2C26;
+    --charcoal-soft: #7C6459;
+    --muted: #BE9989;
     --serif: "Cormorant Garamond", "Bodoni Moda", Georgia, "Times New Roman", serif;
     --sans: "DM Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -32,32 +33,30 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { height: 100%; }
   body {
-    font-family: var(--sans); background: var(--ink); color: var(--cream);
+    font-family: var(--sans); background: var(--bg-1); color: var(--charcoal);
     min-height: 100vh; min-height: 100dvh; overflow: hidden; position: relative;
     -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; -webkit-tap-highlight-color: transparent;
   }
   .experience { position: fixed; inset: 0; padding: 0; }
 
   .bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-  .bg-dark { background: radial-gradient(130% 100% at 50% 32%, #3A2320 0%, #22151A 44%, var(--ink) 80%); opacity: 1; transition: opacity 1.5s var(--ease-soft); }
-  .bg-light { background: radial-gradient(120% 90% at 50% 40%, #FFFDFA 0%, var(--ivory) 46%, var(--ivory-deep) 100%); opacity: 0; transition: opacity 1.6s var(--ease-soft); }
+  .bg-dawn { background: radial-gradient(125% 95% at 50% 30%, var(--bg-1) 0%, var(--bg-2) 52%, var(--bg-3) 100%); opacity: 1; transition: opacity 1.6s var(--ease-soft); }
+  .bg-bloom { background: radial-gradient(120% 95% at 50% 36%, var(--bloom-1) 0%, var(--bloom-2) 52%, var(--bloom-3) 100%); opacity: 0; transition: opacity 1.6s var(--ease-soft); }
+  .experience.is-bloom .bg-dawn { opacity: 0; }
+  .experience.is-bloom .bg-bloom { opacity: 1; }
+
   .grain {
-    position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.3;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
-    mix-blend-mode: overlay;
+    position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.5;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+    mix-blend-mode: multiply;
   }
-  .vignette { position: fixed; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(120% 95% at 50% 45%, transparent 50%, rgba(0,0,0,0.58) 100%); transition: background 1.6s var(--ease-soft); }
-  .experience.is-light .bg-dark { opacity: 0; }
-  .experience.is-light .bg-light { opacity: 1; }
-  .experience.is-light .vignette { background: radial-gradient(120% 95% at 50% 45%, transparent 55%, rgba(51,40,42,0.07) 100%); }
-  .experience.is-light .motes { opacity: 0; }
-  .experience.is-light .frame { border-color: rgba(201,138,114,0.4); }
+  .vignette { position: fixed; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(122% 95% at 50% 45%, transparent 56%, rgba(120,72,52,0.09) 100%); }
 
-  .motes { position: fixed; inset: 0; z-index: 2; pointer-events: none; transition: opacity 1.4s var(--ease-soft); }
-  .mote { position: absolute; border-radius: 50%; background: radial-gradient(circle, var(--rose) 0%, rgba(228,183,160,0.32) 45%, transparent 70%); animation: drift linear infinite; opacity: 0; will-change: transform, opacity; }
+  .motes { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
+  .mote { position: absolute; border-radius: 50%; background: radial-gradient(circle, var(--coral-soft) 0%, rgba(226,114,90,0.28) 45%, transparent 72%); animation: drift linear infinite; opacity: 0; will-change: transform, opacity; }
 
-  .frame { position: fixed; inset: 18px; z-index: 4; pointer-events: none; border: 1px solid rgba(228,183,160,0.24); border-radius: 3px; transition: border-color 1.4s var(--ease-soft); }
-  .corner { position: fixed; z-index: 5; font-size: 14px; line-height: 1; color: var(--rose); opacity: 0.8; pointer-events: none; }
+  .frame { position: fixed; inset: 18px; z-index: 4; pointer-events: none; border: 1px solid rgba(193,87,63,0.28); border-radius: 3px; }
+  .corner { position: fixed; z-index: 5; font-size: 14px; line-height: 1; color: var(--coral-deep); opacity: 0.75; pointer-events: none; }
   .corner.tl { top: 30px; left: 30px; } .corner.tr { top: 30px; right: 30px; }
   .corner.bl { bottom: 30px; left: 30px; } .corner.br { bottom: 30px; right: 30px; }
 
@@ -86,64 +85,67 @@
   .slide.active .d4 { animation-delay: 1.14s; }
   .slide.active .d5 { animation-delay: 1.5s; }
 
-  .eyebrow { font-family: var(--sans); font-size: 11px; font-weight: 400; letter-spacing: 0.42em; text-transform: uppercase; color: var(--rose); padding-left: 0.42em; }
-  .whisper { font-family: var(--sans); font-size: clamp(0.72rem, 3.4vw, 0.82rem); letter-spacing: 0.24em; text-transform: uppercase; color: var(--cream-dim); padding-left: 0.24em; }
-  .lead { font-family: var(--serif); font-weight: 400; font-style: italic; font-size: min(2.4rem, 8vw); line-height: 1.24; color: var(--cream); letter-spacing: 0.01em; }
-  .big { font-family: var(--serif); font-weight: 400; font-size: min(3.1rem, 10.2vw); line-height: 1.14; color: var(--cream); letter-spacing: 0.01em; }
-  .huge { font-family: var(--serif); font-weight: 500; font-size: min(4.4rem, 15vw); line-height: 1.02; color: var(--rose); letter-spacing: 0.01em; white-space: nowrap; max-width: 100%; }
-  .sub { font-family: var(--serif); font-weight: 400; font-style: italic; font-size: min(1.5rem, 5.6vw); line-height: 1.4; color: var(--gold-soft); letter-spacing: 0.01em; }
-  .accent { color: var(--rose); font-style: normal; }
-  .accent-g { color: var(--gold-soft); font-style: normal; }
-  .nick { font-family: var(--serif); font-weight: 500; font-style: italic; font-size: min(3rem, 10vw); line-height: 1.14; color: var(--rose); }
+  .eyebrow { font-family: var(--sans); font-size: 11px; font-weight: 400; letter-spacing: 0.42em; text-transform: uppercase; color: var(--coral-deep); padding-left: 0.42em; }
+  .whisper { font-family: var(--sans); font-size: clamp(0.72rem, 3.4vw, 0.82rem); letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted); padding-left: 0.24em; }
+  .lead { font-family: var(--serif); font-weight: 400; font-style: italic; font-size: min(2.4rem, 8vw); line-height: 1.24; color: var(--charcoal); letter-spacing: 0.01em; }
+  .big { font-family: var(--serif); font-weight: 400; font-size: min(3.1rem, 10.2vw); line-height: 1.14; color: var(--charcoal); letter-spacing: 0.01em; }
+  .huge { font-family: var(--serif); font-weight: 500; font-size: min(4.6rem, 15.5vw); line-height: 1.02; color: var(--coral-deep); letter-spacing: 0.01em; white-space: nowrap; max-width: 100%; }
+  .sub { font-family: var(--serif); font-weight: 400; font-style: italic; font-size: min(1.5rem, 5.6vw); line-height: 1.4; color: var(--coral-deep); letter-spacing: 0.01em; }
+  .accent { color: var(--coral-deep); font-style: normal; }
+  .accent-g { color: var(--gold); font-style: normal; }
+  .nickname { color: var(--coral-deep); font-style: italic; }
 
-  .ornament { display: flex; align-items: center; justify-content: center; gap: 12px; color: var(--rose); }
-  .ornament .line { width: 42px; height: 1px; background: linear-gradient(90deg, transparent, var(--rose)); }
-  .ornament .line.r { background: linear-gradient(90deg, var(--rose), transparent); }
+  .ornament { display: flex; align-items: center; justify-content: center; gap: 12px; color: var(--coral); }
+  .ornament .line { width: 42px; height: 1px; background: linear-gradient(90deg, transparent, var(--coral)); }
+  .ornament .line.r { background: linear-gradient(90deg, var(--coral), transparent); }
   .ornament .star { font-size: 12px; opacity: 0.9; }
+
+  /* poetry beat */
+  .poem { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: min(2rem, 7.4vw); line-height: 1.58; color: var(--charcoal); letter-spacing: 0.01em; }
+  .poem .l2 { display: block; color: var(--coral-deep); }
 
   .photo { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; }
   .photo-inner {
     position: relative; width: 100%; max-width: 330px; aspect-ratio: 4 / 5;
-    padding: 8px; background: linear-gradient(160deg, #2c1b1f, #1d1216);
-    border: 1px solid rgba(228,183,160,0.4); border-radius: 4px;
-    box-shadow: 0 26px 50px -26px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.02) inset; overflow: hidden;
+    padding: 8px; background: linear-gradient(160deg, #FFFDFB, #FCEEE6);
+    border: 1px solid rgba(193,87,63,0.3); border-radius: 4px;
+    box-shadow: 0 26px 50px -28px rgba(120,72,52,0.35), 0 0 0 1px rgba(255,255,255,0.4) inset; overflow: hidden;
   }
   .photo-inner img { width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 2px; display: block; animation: kenburns 12s ease-out both; }
-  .photo-inner.ph { display: flex; align-items: center; justify-content: center; background: repeating-linear-gradient(135deg, #2a191d 0 14px, #241419 14px 28px); }
-  .photo-inner.ph::after { content: "tumhari photo yahan \00A0\2726"; font-family: var(--sans); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rose); opacity: 0.7; text-align: center; padding: 0 20px; }
-  .cap { font-family: var(--serif); font-style: italic; font-size: min(1.35rem, 5vw); line-height: 1.4; color: var(--gold-soft); letter-spacing: 0.01em; max-width: 26ch; }
+  .photo-inner.ph { display: flex; align-items: center; justify-content: center; background: repeating-linear-gradient(135deg, #FCEEE6 0 14px, #FBE4D8 14px 28px); }
+  .photo-inner.ph::after { content: "tumhari photo yahan \00A0\2726"; font-family: var(--sans); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--coral-deep); opacity: 0.65; text-align: center; padding: 0 20px; }
+  .cap { font-family: var(--serif); font-style: italic; font-size: min(1.35rem, 5vw); line-height: 1.4; color: var(--coral-deep); letter-spacing: 0.01em; max-width: 26ch; }
 
-  #final .hb { font-family: var(--sans); font-size: 12px; letter-spacing: 0.44em; text-transform: uppercase; color: var(--rose-deep); padding-left: 0.44em; }
+  #final .hb { font-family: var(--sans); font-size: 12px; letter-spacing: 0.44em; text-transform: uppercase; color: var(--coral-deep); padding-left: 0.44em; }
   #final .love { font-family: var(--serif); font-weight: 400; font-size: min(1.5rem, 5.6vw); line-height: 1.62; letter-spacing: 0.01em; color: var(--charcoal); max-width: 32ch; }
-  #final .love em { font-style: italic; color: var(--rose-deep); }
+  #final .love em { font-style: italic; color: var(--coral-deep); }
   #final .love .br { display: block; height: 0.7em; }
-  #final .sign { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: min(1.7rem, 6vw); color: var(--rose-deep); letter-spacing: 0.01em; }
+  #final .sign { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: min(1.7rem, 6vw); color: var(--coral-deep); letter-spacing: 0.01em; }
   .divider { position: relative; width: 60%; max-width: 220px; height: 1px; overflow: hidden; background: linear-gradient(90deg, transparent, var(--gold) 20%, var(--gold) 80%, transparent); }
   .divider::after { content: ""; position: absolute; top: 0; left: -45%; width: 45%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.95), transparent); animation: shimmer 4.5s ease-in-out infinite; }
   .divider .dot { position: absolute; top: 50%; left: 50%; width: 5px; height: 5px; background: var(--gold); border-radius: 50%; transform: translate(-50%, -50%) rotate(45deg); }
 
-  .replay { margin-top: 4px; background: none; border: none; cursor: pointer; font-family: var(--sans); font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--rose-deep); padding: 8px 12px 8px calc(12px + 0.3em); opacity: 0.75; transition: opacity 0.4s ease; }
+  .replay { margin-top: 4px; background: none; border: none; cursor: pointer; font-family: var(--sans); font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--coral-deep); padding: 8px 12px 8px calc(12px + 0.3em); opacity: 0.75; transition: opacity 0.4s ease; }
   .replay:hover { opacity: 1; }
 
-  .hint { position: fixed; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom) + 22px); z-index: 6; text-align: center; font-family: var(--sans); font-size: 9px; letter-spacing: 0.34em; text-transform: uppercase; color: var(--cream-dim); padding-left: 0.34em; opacity: 0; transition: opacity 0.6s ease; pointer-events: none; }
-  .hint.show { opacity: 0.55; animation: hintPulse 3s ease-in-out infinite; }
-  .experience.is-light .hint { color: var(--charcoal-soft); }
+  .hint { position: fixed; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom) + 22px); z-index: 6; text-align: center; font-family: var(--sans); font-size: 9px; letter-spacing: 0.34em; text-transform: uppercase; color: var(--muted); padding-left: 0.34em; opacity: 0; transition: opacity 0.6s ease; pointer-events: none; }
+  .hint.show { opacity: 0.7; animation: hintPulse 3s ease-in-out infinite; }
 
   .progress { position: fixed; left: 0; right: 0; bottom: 0; height: 2px; z-index: 6; opacity: 0; transition: opacity 0.5s ease; }
   .progress.show { opacity: 1; }
-  .progress-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--rose-deep), var(--rose), var(--gold-bright)); transition: width 0.7s var(--ease-soft); }
+  .progress-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--coral-deep), var(--coral), var(--gold-soft)); transition: width 0.7s var(--ease-soft); }
 
   .particles { position: fixed; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; }
-  .spark { position: absolute; color: var(--rose); opacity: 0; will-change: transform, opacity; }
+  .spark { position: absolute; color: var(--coral); opacity: 0; will-change: transform, opacity; }
   .spark svg { display: block; width: 100%; height: 100%; }
 
   @keyframes riseIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
   @keyframes popIn { 0% { opacity: 0; transform: translateY(16px) scale(0.84); } 60% { opacity: 1; transform: translateY(0) scale(1.04); } 100% { opacity: 1; transform: scale(1); } }
   @keyframes blurIn { from { opacity: 0; filter: blur(9px); transform: translateY(10px); } to { opacity: 1; filter: blur(0); transform: none; } }
   @keyframes kenburns { from { transform: scale(1.12); } to { transform: scale(1); } }
-  @keyframes hintPulse { 0%,100% { opacity: 0.3; } 50% { opacity: 0.75; } }
+  @keyframes hintPulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.85; } }
   @keyframes shimmer { 0% { left: -45%; } 45%,100% { left: 135%; } }
-  @keyframes drift { 0% { transform: translateY(20px) translateX(0); opacity: 0; } 12% { opacity: var(--peak, 0.8); } 88% { opacity: var(--peak, 0.8); } 100% { transform: translateY(-120px) translateX(var(--sway, 12px)); opacity: 0; } }
+  @keyframes drift { 0% { transform: translateY(20px) translateX(0); opacity: 0; } 12% { opacity: var(--peak, 0.6); } 88% { opacity: var(--peak, 0.6); } 100% { transform: translateY(-120px) translateX(var(--sway, 12px)); opacity: 0; } }
   @keyframes sparkFloat { 0% { opacity: 0; transform: translate(0,0) scale(0.4) rotate(0deg); } 18% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.05) rotate(90deg); } }
 
   @media (max-height: 740px) { .beat.g-lg { gap: 22px; } .beat.g-md { gap: 20px; } .photo-inner { max-width: 250px; } }
@@ -158,8 +160,8 @@
 </head>
 <body>
   <div class="experience" id="experience">
-    <div class="bg bg-dark"></div>
-    <div class="bg bg-light"></div>
+    <div class="bg bg-dawn"></div>
+    <div class="bg bg-bloom"></div>
     <div class="grain"></div>
     <div class="motes" id="motes" aria-hidden="true"></div>
     <div class="vignette"></div>
@@ -176,7 +178,7 @@
         <div class="beat g-md">
           <span class="whisper anim blur d1">ruk jao &mdash; scroll mat karo</span>
           <p class="big anim blur d2">Aaj ek<br />khaas din hai.</p>
-          <p class="sub anim rise d3">Aur ye <span class="accent">sirf tumhare</span> liye hai.</p>
+          <p class="sub anim rise d3">Aur ye sirf tumhare liye hai,<br /><span class="nickname">meri Coco.</span></p>
         </div>
       </section>
 
@@ -184,11 +186,11 @@
       <section class="slide" id="s1" aria-hidden="true">
         <div class="beat g-md">
           <p class="lead anim rise d1">Saal mein ek din<br />aisa aata hai&hellip;</p>
-          <p class="big anim rise d3">jab meri poori duniya<br /><span class="accent-g">roshan</span> ho jaati hai.</p>
+          <p class="big anim rise d3">jab meri poori duniya<br /><span class="accent">roshan</span> ho jaati hai.</p>
         </div>
       </section>
 
-      <!-- 2 · PHOTO 1 (car) -->
+      <!-- 2 · PHOTO 1 -->
       <section class="slide" id="s2" aria-hidden="true">
         <div class="beat g-sm">
           <figure class="photo anim rise d1">
@@ -208,18 +210,16 @@
         </div>
       </section>
 
-      <!-- 4 · nicknames (the heart) -->
-      <section class="slide" id="s4" data-burst aria-hidden="true">
+      <!-- 4 · poetry, dedicated softly to Haju -->
+      <section class="slide" id="s4" aria-hidden="true">
         <div class="beat g-sm">
-          <span class="whisper anim rise d1">tum ho meri&hellip;</span>
-          <p class="nick anim pop d2">Coco.</p>
-          <p class="nick anim pop d3">Haju.</p>
-          <p class="nick anim pop d4">Pumpo.</p>
-          <p class="sub anim rise d5">&hellip;aur meri sab kuch.</p>
+          <div class="ornament anim rise d1" aria-hidden="true"><span class="line"></span><span class="star">&#10022;</span><span class="line r"></span></div>
+          <p class="poem anim rise d2">tum ho to zindagi hai,<span class="l2">warna ye bas guzarti hai.</span></p>
+          <span class="whisper anim rise d3">for my Haju</span>
         </div>
       </section>
 
-      <!-- 5 · PHOTO 2 (office smile) -->
+      <!-- 5 · PHOTO 2 -->
       <section class="slide" id="s5" aria-hidden="true">
         <div class="beat g-sm">
           <figure class="photo anim rise d1">
@@ -229,15 +229,15 @@
         </div>
       </section>
 
-      <!-- 6 · line -->
+      <!-- 6 · line, Pumpo -->
       <section class="slide" id="s6" aria-hidden="true">
         <div class="beat g-md">
           <p class="big anim rise d1">Tum meri subah ki<br /><span class="accent">pehli dua</span> ho,</p>
-          <p class="sub anim rise d3">aur raat ki aakhri soch.</p>
+          <p class="sub anim rise d3">aur raat ki aakhri soch,<br /><span class="nickname">meri Pumpo.</span></p>
         </div>
       </section>
 
-      <!-- 7 · PHOTO 3 (blue closeup) -->
+      <!-- 7 · PHOTO 3 -->
       <section class="slide" id="s7" aria-hidden="true">
         <div class="beat g-sm">
           <figure class="photo anim rise d1">
@@ -252,11 +252,11 @@
         <div class="beat g-md">
           <p class="lead anim rise d1">You are the calm</p>
           <p class="big anim rise d2">in all my <span class="accent">chaos.</span></p>
-          <p class="sub anim rise d3">mera sukoon, meri Haju.</p>
+          <p class="sub anim rise d3">mera sukoon, meri jaan.</p>
         </div>
       </section>
 
-      <!-- 9 · PHOTO 4 (working together) -->
+      <!-- 9 · PHOTO 4 -->
       <section class="slide" id="s9" aria-hidden="true">
         <div class="beat g-sm">
           <figure class="photo anim rise d1">
@@ -274,7 +274,7 @@
         </div>
       </section>
 
-      <!-- 11 · PHOTO 5 (mirror) -->
+      <!-- 11 · PHOTO 5 -->
       <section class="slide" id="s11" aria-hidden="true">
         <div class="beat g-sm">
           <figure class="photo anim rise d1">
@@ -284,7 +284,7 @@
         </div>
       </section>
 
-      <!-- 12 · FINAL love-note (light) -->
+      <!-- 12 · FINAL love-note -->
       <section class="slide" id="final" data-burst aria-hidden="true">
         <div class="beat g-md">
           <span class="hb anim rise d1">Happy Birthday, Hajrah</span>
@@ -328,7 +328,7 @@
 
       (function () {
         if (reduce) return;
-        for (var i = 0; i < 32; i++) {
+        for (var i = 0; i < 30; i++) {
           var m = document.createElement("span"); m.className = "mote";
           var size = 2 + Math.random() * 5;
           m.style.width = size + "px"; m.style.height = size + "px";
@@ -336,7 +336,7 @@
           var dur = 9 + Math.random() * 12;
           m.style.animationDuration = dur + "s"; m.style.animationDelay = "-" + (Math.random() * dur) + "s";
           m.style.setProperty("--sway", (Math.random() * 40 - 20) + "px");
-          m.style.setProperty("--peak", (0.35 + Math.random() * 0.5).toFixed(2));
+          m.style.setProperty("--peak", (0.25 + Math.random() * 0.4).toFixed(2));
           motes.appendChild(m);
         }
       })();
@@ -369,7 +369,7 @@
         });
         var slide = slides[index];
         var isFinal = index === total - 1;
-        exp.classList.toggle("is-light", isFinal);
+        exp.classList.toggle("is-bloom", index >= 3);
         progress.classList.add("show");
         progressFill.style.width = ((index + 1) / total * 100) + "%";
         if (isFinal) hint.classList.remove("show"); else hint.classList.add("show");
